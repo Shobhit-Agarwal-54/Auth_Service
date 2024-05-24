@@ -2,6 +2,11 @@
 const {
   Model
 } = require('sequelize');
+
+const bcrypt=require("bcrypt");
+// requiring the bcrypt package
+const {SALT}=require("../config/serverConfig");
+
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     /**
@@ -33,5 +38,12 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'User',
   });
+  // beforeCreate is a hook or trigger which gets called before the 
+  // data gets inserted in the row 
+  // user is the row of the table to be inserted
+  User.beforeCreate((user)=>{
+    const encryptedPassword=bcrypt.hashSync(user.password,SALT);
+    user.password=encryptedPassword;
+  })
   return User;
 };
