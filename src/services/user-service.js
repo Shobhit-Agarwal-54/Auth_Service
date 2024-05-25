@@ -1,6 +1,7 @@
 const UserRepository=require("../repository/user-repository");
 const jwt=require("jsonwebtoken");
 const {JWT_KEY}=require("../config/serverConfig");
+const bcrypt=require("bcrypt");
 
 class UserService{
     constructor()
@@ -20,6 +21,7 @@ class UserService{
     }
     createToken(user)
     {
+        // here user should be a custom js object not an sequelize object
         try {   
             // JWT_KEY is a key that is unique for each token creation and is specified by us
         const result= jwt.sign(user,JWT_KEY,
@@ -41,6 +43,16 @@ class UserService{
            return response;
         } catch (error) {
             console.log("Something went wrong in token validation",error);
+            throw error;
+        }
+    }
+    
+    checkPassword(userInputPlainPassword,encryptedPassword)
+    {
+        try {
+            return bcrypt.compareSync(userInputPlainPassword,encryptedPassword);
+        } catch (error) {
+            console.log("Something went wrong in password comparison");
             throw error;
         }
     }
