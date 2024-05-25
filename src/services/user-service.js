@@ -19,6 +19,29 @@ class UserService{
             throw error;
         }
     }
+
+    async signIn(email,plainPassword){
+        try {
+            // step 1-> fetch the user using the email
+            const user=await this.userRepository.getByEmail(email);
+            // step 2 -> compare incoming plain password with stores encrypted password
+            const passwordMatch=this.checkPassword(plainPassword,user.password);
+            
+            if(!passwordMatch)
+                {
+                    console.log("Password doesn't match");
+                    throw {error:"Incorrect Password"};
+                }
+            // step-3 -> if password match then create a token and send it to the user
+            const newJWT=this.createToken({email:user.email,id:user.id});
+            return newJWT;
+
+        } catch (error) {
+            console.log("Something went wrong in the sign in process");
+            throw error;
+        }
+    }
+
     createToken(user)
     {
         // here user should be a custom js object not an sequelize object
@@ -46,7 +69,7 @@ class UserService{
             throw error;
         }
     }
-    
+
     checkPassword(userInputPlainPassword,encryptedPassword)
     {
         try {
