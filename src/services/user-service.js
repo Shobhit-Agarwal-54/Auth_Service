@@ -24,7 +24,7 @@ class UserService{
         try {
             // step 1-> fetch the user using the email
             const user=await this.userRepository.getByEmail(email);
-            // step 2 -> compare incoming plain password with stores encrypted password
+            // step 2 -> compare incoming plain password with stored encrypted password
             const passwordMatch=this.checkPassword(plainPassword,user.password);
             
             if(!passwordMatch)
@@ -35,10 +35,35 @@ class UserService{
             // step-3 -> if password match then create a token and send it to the user
             const newJWT=this.createToken({email:user.email,id:user.id});
             return newJWT;
+            // Same class functions are also to be called using the object of the class
 
         } catch (error) {
             console.log("Something went wrong in the sign in process");
             throw error;
+        }
+    }
+
+    async isAuthenticated(token)
+    {
+        try {
+           const response= this.verifyToken(token);
+        //    We are finding out the object contained inside the token
+           if(!response)
+            {
+                throw {error:"Invalid token"}
+                // Token expired
+            }
+            // We are fetching the user details pointed out by token from database
+            const user=await this.userRepository.getById(response.id);
+            if(!user)
+            {
+                throw {error:"No user with corresponding token exists"};
+                // It means that the user had signed in and after that deleted the account
+            }
+            return user.id;
+        } catch (error) {
+         console.log("Something went wrong in the auth process");
+         throw error;   
         }
     }
 
