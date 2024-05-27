@@ -16,6 +16,12 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      // We are defining many to many associations between User and Role models 
+      // By creating a table named User_Roles by following below syntax
+      // If we sync our db then the table will  get created 
+      this.belongsToMany(models.Role,{
+        through:"User_Roles",
+      })
     }
   }
   User.init({
